@@ -1,7 +1,16 @@
 import axios from 'axios'
 
+const getBaseUrl = () => {
+  let url = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
+  url = url.replace(/\/+$/, '') // Remove trailing slash
+  if (!url.endsWith('/api/v1')) {
+    url += '/api/v1'
+  }
+  return url
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
+  baseURL: getBaseUrl(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -33,7 +42,7 @@ api.interceptors.response.use(
       try {
         const { useAuthStore } = await import('../stores/authStore')
         const success = await useAuthStore.getState().refreshAccessToken()
-        
+
         if (success) {
           return api(originalRequest)
         }
